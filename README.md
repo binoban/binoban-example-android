@@ -13,7 +13,8 @@ identity APIs you use to send customer signals into a Binoban deployment.
 ## Prerequisites
 
 - Android Studio Meerkat or later
-- Android SDK 24+
+- **Binoban Android SDK:** Android **5.0 (API 21)+**. This example app is also configured
+  with `minSdk = 21`, so it runs on any device the SDK supports.
 - Your credentials from Binoban customer support:
   - **API Key** (`apiKey`)
   - **Source Identifier** (`sourceIdentifier`)
