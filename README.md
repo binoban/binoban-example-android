@@ -7,7 +7,7 @@ Binoban is enterprise CDXP infrastructure for customer data, activation, retail 
 advertising, and decisioning. This example demonstrates the client-side event and
 identity APIs you use to send customer signals into a Binoban deployment.
 
-> **Status:** Reference example · tested against Binoban Android SDK **0.1.x**
+> **Status:** Reference example · tested against Binoban Android SDK **1.0.0**
 > (`io.binoban.sdk:sdk-android`).
 
 ## Prerequisites
