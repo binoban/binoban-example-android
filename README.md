@@ -28,7 +28,7 @@ Contact **support@binoban.io** to obtain these values for your account.
 2. In `app/src/main/java/io/binoban/sdk/demo/android/MainApplication.kt`, replace the placeholder credentials:
 
 ```kotlin
-analytics = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
+binoban = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
     application = app
     apiHost = "YOUR_API_HOST"
 }
@@ -61,11 +61,11 @@ implementation("io.binoban.sdk:sdk-android:<version>")
 import io.binoban.sdk.core.Binoban
 
 class MyApplication : Application() {
-    lateinit var analytics: Binoban
+    lateinit var binoban: Binoban
 
     override fun onCreate() {
         super.onCreate()
-        analytics = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
+        binoban = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
             application = this@MyApplication
             apiHost = "YOUR_API_HOST"
         }
@@ -77,21 +77,21 @@ class MyApplication : Application() {
 
 ```kotlin
 // Track an event
-analytics.track("purchase", buildJsonObject {
+binoban.track("purchase", buildJsonObject {
     put("item", "shoes")
     put("price", "49.99")
 })
 
 // Identify a user
-analytics.identify("user-123", buildJsonObject {
+binoban.identify("user-123", buildJsonObject {
     put("email", "user@example.com")
 })
 
 // Flush buffered events
-analytics.flush()
+binoban.flush()
 
 // Reset user identity
-analytics.reset()
+binoban.reset()
 ```
 
 ## Java integration
@@ -105,15 +105,15 @@ import io.binoban.sdk.core.Binoban;
 import io.binoban.sdk.core.BinobanKt;
 
 public class MyApplication extends Application {
-    private static Binoban analytics;
+    private static Binoban binoban;
 
-    public static Binoban getAnalytics() { return analytics; }
+    public static Binoban getBinoban() { return binoban; }
 
     @Override
     public void onCreate() {
         super.onCreate();
         final Application app = this;
-        analytics = BinobanKt.Binoban(
+        binoban = BinobanKt.Binoban(
             "YOUR_API_KEY",
             "YOUR_SOURCE_IDENTIFIER",
             config -> {
@@ -142,18 +142,18 @@ propsMap.put("price", new JsonPrimitive("49.99"));
 JsonObject props = new JsonObject(propsMap);
 
 // Track an event
-analytics.track("purchase", props);
+binoban.track("purchase", props);
 
 // Identify a user
 Map<String, JsonElement> traitsMap = new HashMap<>();
 traitsMap.put("email", new JsonPrimitive("user@example.com"));
-analytics.identify("user-123", new JsonObject(traitsMap));
+binoban.identify("user-123", new JsonObject(traitsMap));
 
 // Flush buffered events
-analytics.flush();
+binoban.flush();
 
 // Reset user identity
-analytics.reset();
+binoban.reset();
 ```
 
 The credential placeholders (`YOUR_API_KEY`, `YOUR_SOURCE_IDENTIFIER`, `YOUR_API_HOST`) are obtained the same way as the Kotlin integration — contact **support@binoban.io**.

@@ -5,13 +5,13 @@ import io.binoban.sdk.core.Binoban
 
 class MainApplication : Application() {
     companion object {
-        lateinit var analytics: Binoban
+        lateinit var binoban: Binoban
     }
 
     override fun onCreate() {
         super.onCreate()
         val app = this
-        analytics = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
+        binoban = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
             application = app
             apiHost = "YOUR_API_HOST"
         }
