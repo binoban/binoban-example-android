@@ -47,13 +47,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.binoban.sdk.core.Binoban
 import io.binoban.sdk.demo.android.ui.theme.BinobanAndroidSdkDemoTheme
+import io.binoban.sdk.demo.android.ui.PushPanel
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 enum class DemoTab(val label: String) {
-    TRACK("Track"), IDENTIFY("Identify"), SETTINGS("Settings")
+    TRACK("Track"), IDENTIFY("Identify"), PUSH("Push"), SETTINGS("Settings")
 }
 
 data class Field(val id: Int, val key: String = "", val value: String = "")
@@ -170,6 +171,8 @@ fun MainScreen(binoban: Binoban, modifier: Modifier = Modifier) {
                     }
                 }
             )
+
+            DemoTab.PUSH -> PushPanel()
 
             else -> {
                 // FLUSH / RESET action row
@@ -291,10 +294,7 @@ fun MainScreen(binoban: Binoban, modifier: Modifier = Modifier) {
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = if (lastEventJson.isEmpty())
-                            "Payload will appear here after sending…"
-                        else
-                            lastEventJson,
+                        text = lastEventJson.ifEmpty { "Payload will appear here after sending…" },
                         style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 12.sp),
                         color = if (lastEventJson.isEmpty())
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
