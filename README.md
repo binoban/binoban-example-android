@@ -1,31 +1,34 @@
-# Binoban Android SDK — Example App
+<img src="https://raw.githubusercontent.com/binoban/.github/63ddb277b487b407613e98205a324d4fc6b1019c/profile/binoban-star-indigo-on-white.png" alt="Binoban indigo star" width="72" height="72">
 
-A minimal Jetpack Compose reference app showing how to integrate the **Binoban SDK** into
-an Android project.
+# Binoban Android Reference App
 
-Binoban is enterprise CDXP infrastructure for customer data, activation, retail media,
-advertising, and decisioning. This example demonstrates the client-side event and
-identity APIs you use to send customer signals into a Binoban deployment.
+Explore customer event tracking, user identification, and optional push integration in a native Android app built with Jetpack Compose.
 
-> **Status:** Reference example · tested against Binoban Android SDK **1.3.0**
-> (`io.binoban.sdk:sdk-android`).
+[Example app guide](https://docs.binoban.io/developers/reference/example-apps) · [Android SDK guide](https://docs.binoban.io/developers/reference/sdks/native-sdk-android) · [Push guide](https://docs.binoban.io/developers/engage/mobile-push-android)
 
-## Prerequisites
+## What this repository provides
 
-- Android Studio Meerkat or later
-- **Binoban Android SDK:** Android **5.0 (API 21)+**. This example app is also configured
-  with `minSdk = 21`, so it runs on any device the SDK supports.
-- Your credentials from Binoban customer support:
-  - **API Key** (`apiKey`)
-  - **Source Identifier** (`sourceIdentifier`)
-  - **API Host** (`apiHost`)
+A reference app that consumes `io.binoban.sdk:sdk-android:1.3.0`. Use it to inspect client calls and configuration, then apply the integration pattern to your own app.
 
-Contact **support@binoban.io** to obtain these values for your account.
+## Requirements
 
-## Setup
+| Component | Requirement |
+| --- | --- |
+| IDE | Android Studio Meerkat or later |
+| Default `pushOff` variant | Android API 21+ |
+| Optional `pushOn` variant | Android API 23+; Firebase Cloud Messaging 25.x |
+| Build configuration | Compile/target SDK 35; JVM target 11 |
+| Configuration | Source API key, source identifier, and deployment API host |
 
-1. Open the project in Android Studio.
-2. In `app/src/main/java/io/binoban/sdk/demo/android/MainApplication.kt`, replace the placeholder credentials:
+## Get started
+
+### 1. Open the project
+
+Clone this repository and open it in Android Studio. Let Gradle resolve the checked-in dependencies.
+
+### 2. Configure your deployment
+
+Request your API key, source identifier, and API host from [tech@binoban.io](mailto:tech@binoban.io). Replace the placeholders in [MainApplication.kt](app/src/main/java/io/binoban/sdk/demo/android/MainApplication.kt):
 
 ```kotlin
 binoban = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
@@ -34,26 +37,40 @@ binoban = Binoban("YOUR_API_KEY", "YOUR_SOURCE_IDENTIFIER") {
 }
 ```
 
-3. Run the app on a device or emulator.
+### 3. Run the app
 
-## What the demo shows
+Select `pushOffDebug` in Android Studio and run on a device or emulator. To install it from the repository root:
 
-| Feature | Description |
-|---|---|
-| **Track** | Send a named event with custom key-value properties |
-| **Identify** | Identify a user by ID with custom traits |
-| **Flush** | Immediately dispatch any buffered events to the server |
-| **Reset** | Clear the current user identity and reset SDK state |
-| **Push** | Opt-in Firebase Cloud Messaging integration — token registration, notification display, and interaction reporting (tap / dismiss / customData) |
-| **Settings** | Toggle debug logging, enable/disable the SDK, adjust flush thresholds at runtime |
-| **JSON display** | See the exact payload sent for each call |
+```sh
+./gradlew :app:installPushOffDebug
+```
+
+Firebase setup is optional. The default variant contains no Firebase dependency.
+
+## Explore the example
+
+| Feature | What you can explore |
+| --- | --- |
+| Track | Named events with custom properties |
+| Identify | User IDs and custom traits |
+| Flush | Request delivery of buffered events |
+| Reset | Clear the current identity and reset SDK state |
+| Settings | Debug logs, SDK enablement, and flush thresholds |
+| JSON display | Inspect the inputs for each call |
+| Push | Optional FCM token registration, display, and interaction reporting |
+
+## Verify your integration
+
+Use **Track** to send an event, then **Flush** to request delivery. Check the SDK logs and confirm event acceptance using the [Developer Quick Start](https://docs.binoban.io/developers/quickstart). The JSON display shows call inputs; it is not a delivery receipt.
+
+If no event arrives, check the source credentials and `apiHost`. If push is unavailable, confirm the selected variant and Firebase configuration described below.
 
 ## SDK integration pattern (Kotlin)
 
 Add the dependency to your `build.gradle.kts`:
 
 ```kotlin
-implementation("io.binoban.sdk:sdk-android:<version>")
+implementation("io.binoban.sdk:sdk-android:1.3.0")
 ```
 
 **Application class**
@@ -78,9 +95,9 @@ class MyApplication : Application() {
 
 ```kotlin
 // Track an event
-binoban.track("purchase", buildJsonObject {
+binoban.track("Order Completed", buildJsonObject {
     put("item", "shoes")
-    put("price", "49.99")
+    put("price", 49.99)
 })
 
 // Identify a user
@@ -102,6 +119,7 @@ The SDK is fully usable from Java. Add the dependency the same way; only the cal
 **Application class**
 
 ```java
+import android.app.Application;
 import io.binoban.sdk.core.Binoban;
 import io.binoban.sdk.core.BinobanKt;
 
@@ -131,23 +149,24 @@ public class MyApplication extends Application {
 **Key method calls**
 
 ```java
+import kotlinx.serialization.json.JsonElement;
 import kotlinx.serialization.json.JsonObject;
-import kotlinx.serialization.json.JsonPrimitive;
+import kotlinx.serialization.json.JsonElementKt;
 import java.util.HashMap;
 import java.util.Map;
 
 // Build properties map
 Map<String, JsonElement> propsMap = new HashMap<>();
-propsMap.put("item", new JsonPrimitive("shoes"));
-propsMap.put("price", new JsonPrimitive("49.99"));
+propsMap.put("item", JsonElementKt.JsonPrimitive("shoes"));
+propsMap.put("price", JsonElementKt.JsonPrimitive(49.99));
 JsonObject props = new JsonObject(propsMap);
 
 // Track an event
-binoban.track("purchase", props);
+binoban.track("Order Completed", props);
 
 // Identify a user
 Map<String, JsonElement> traitsMap = new HashMap<>();
-traitsMap.put("email", new JsonPrimitive("user@example.com"));
+traitsMap.put("email", JsonElementKt.JsonPrimitive("user@example.com"));
 binoban.identify("user-123", new JsonObject(traitsMap));
 
 // Flush buffered events
@@ -157,24 +176,24 @@ binoban.flush();
 binoban.reset();
 ```
 
-The credential placeholders (`YOUR_API_KEY`, `YOUR_SOURCE_IDENTIFIER`, `YOUR_API_HOST`) are obtained the same way as the Kotlin integration — contact **support@binoban.io**.
+The credential placeholders (`YOUR_API_KEY`, `YOUR_SOURCE_IDENTIFIER`, `YOUR_API_HOST`) are obtained the same way as the Kotlin integration: contact **tech@binoban.io**.
 
 ## Push notifications
 
-Push runs on Firebase Cloud Messaging and is **opt-in**. The default build (the
+Push runs on Firebase Cloud Messaging and is **optional**. The default build (the
 `pushOff` flavor) has no Firebase dependency and no `google-services.json`, so it
-builds and runs as-is — the **Push** tab shows the enable steps. Turning it on
+builds and runs as-is: the **Push** tab shows the enable steps. Turning it on
 requires your own Firebase project; Binoban does not wrap Firebase.
 
 > The integration here mirrors the recipe in the public docs:
 > [App push on Android](https://docs.binoban.io/developers/engage/mobile-push-android).
-> That page is the source of truth — read it for the why behind each step.
+> That page is the source of truth: read it for the why behind each step.
 
 ### Enable push in this example
 
 1. **Add your Firebase config.** Download `google-services.json` for the Android
    app (package `io.binoban.sdk.demo.android`) from your Firebase console and
-   place it in `app/`. It is gitignored — never commit it.
+   place it in `app/`. It is gitignored: never commit it.
 
    The build applies the `com.google.gms.google-services` plugin only when this
    file is present, so its presence is the single switch that turns Firebase on.
@@ -182,8 +201,7 @@ requires your own Firebase project; Binoban does not wrap Firebase.
 2. **Select the `pushOn` build variant** in Android Studio (Build → Select Build
    Variant) and run.
 
-The pushOff variant remains the default; `./gradlew assembleDebug` still builds
-it without any Firebase setup. Selecting `pushOn` without the config file also
+Build the non-push variant explicitly with `./gradlew :app:assemblePushOffDebug` when Firebase is not configured. Selecting `pushOn` without the config file also
 builds, but Firebase cannot initialize at runtime and the Push tab reports the
 token as unavailable.
 
@@ -231,13 +249,13 @@ the [four documented steps](https://docs.binoban.io/developers/engage/mobile-pus
    `Notification.notify` is what displays the notification.
 4. **Bootstrap the token you already have.** `onNewToken` only fires on token
    generation/rotation, so the Push tab fetches the existing FCM token once and
-   hands it to `Notification.refreshToken` — covering already-installed devices.
+   hands it to `Notification.refreshToken`: covering already-installed devices.
 
 A `DefaultNotificationInteractionHandler` subclass (`LoggingInteractionHandler`)
 calls `super` (so SDK tracking and callbacks still fire) and mirrors each
 interaction into the Push tab's "Recent interactions" list. For your own app,
 route `interaction.uri` and `interaction.customData` through your navigation
-instead of just logging — see
+instead of just logging: see
 [Taps and dismissals](https://docs.binoban.io/developers/engage/mobile-push-android#taps-and-dismissals).
 
 ### Verify it worked
@@ -246,21 +264,33 @@ instead of just logging — see
    event with the token (tap **Re-fetch FCM token** in the Push tab to force it).
 2. Send a test campaign from the Binoban panel. The notification appears,
    `bb_notification_delivered` follows, and tapping it produces
-   `bb_notification_clicked` — the Push tab mirrors each interaction.
+   `bb_notification_clicked`: the Push tab mirrors each interaction.
 
 See [Push events](https://docs.binoban.io/developers/reference/events/push-events)
 for the full event list and payload keys.
 
-## Documentation
+## Documentation and support
 
-- Developer documentation: [docs.binoban.io](https://docs.binoban.io)
-- Website: [binoban.io](https://binoban.io)
+- [Integration guide](https://docs.binoban.io/developers/reference/example-apps)
+- [Developer Quick Start](https://docs.binoban.io/developers/quickstart)
+- [Report a bug or request a feature](https://github.com/binoban/binoban-example-android/issues)
+- [Contribution guide](CONTRIBUTING.md)
+- Deployment access, credentials, and host configuration: [tech@binoban.io](mailto:tech@binoban.io).
 
 ## Security
 
-Please report security issues privately to **security@binoban.io**. See
-[SECURITY.md](SECURITY.md). Do not open public issues for vulnerabilities.
+Report vulnerabilities privately through the [security policy](SECURITY.md). Use placeholders when sharing configuration or reproduction steps.
 
 ## License
 
-Released under the [MIT License](LICENSE), matching the Binoban Android SDK.
+MIT. See [LICENSE](LICENSE).
+
+## About Binoban
+
+Binoban provides enterprise Customer Data Experience Platform (CDXP) infrastructure that connects customer data with prediction, decisioning, and activation across customer engagement, retail media, and advertising.
+
+**Seer. Protector. Builder.** See the signal. Recognize risks and opportunities. Build what comes next.
+
+[Binoban](https://binoban.io) · [Developer documentation](https://docs.binoban.io) · [GitHub organization](https://github.com/binoban)
+
+**Future In Your Hands**
